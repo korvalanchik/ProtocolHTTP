@@ -7,7 +7,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HttpStatusChecker {
-    public static String connectionTo(URL url) throws IOException {
+    public static String getStatusImage(int code) throws IOException {
+        String urlString = "https://http.cat/" + code + ".jpg";
+        URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Content-Type", "application/json");
