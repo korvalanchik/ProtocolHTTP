@@ -1,32 +1,32 @@
 package com.myhttp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class HttpStatusChecker {
-    public static String getStatusImage(int code) throws IOException {
+    public static String getStatusImage(int code) throws IOException, URISyntaxException, InterruptedException, MyException {
         String urlString = "https://http.cat/" + code + ".jpg";
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Content-Type", "application/json");
-        int responseCode = connection.getResponseCode();
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader in =
-                    new BufferedReader(
-                            new InputStreamReader(connection.getInputStream()));
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-        } else {
-            System.out.println("GET posts request not worked");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .GET()
+                .version(HttpClient.Version.HTTP_2)
+                .header("Content-Type", "application/jpg")
+                .build();
+        HttpClient client = HttpClient.newBuilder().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        int responseCode = response.statusCode();
+        if(responseCode == 404) {
+            throw new MyException(code);
         }
-        return String.valueOf(response);
+        return urlString;
+    }
+    static class MyException extends Exception {
+        public MyException(int code) {
+            super(code + " not found!");
+        }
     }
 }

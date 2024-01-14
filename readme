@@ -1,0 +1,3 @@
+Check status image.
+If it's not found throws an exception.
+Put image to file in folder "images".
