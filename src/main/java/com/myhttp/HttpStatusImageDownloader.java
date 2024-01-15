@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class HttpStatusImageDownloader {
-    void downloadStatusImage(int code) throws URISyntaxException, HttpStatusChecker.MyException, IOException, InterruptedException {
+    public void downloadStatusImage(int code) throws URISyntaxException, HttpStatusChecker.MyException, IOException, InterruptedException {
         String urlString = HttpStatusChecker.getStatusImage(code);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
