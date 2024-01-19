@@ -20,8 +20,12 @@ public class Client {
                 BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
         ) {
             System.out.println("Connected to server with adress: http://localhost:" + PORT);
+            System.out.print("Press your nick: ");
+            String messageToSend = consoleIn.readLine() + END_OF_MESSAGE_MARK;
+            out.write(messageToSend.getBytes());
+            out.flush();
             while (true) {
-                String messageToSend = consoleIn.readLine() + END_OF_MESSAGE_MARK;
+                messageToSend = consoleIn.readLine() + END_OF_MESSAGE_MARK;
                 if(EXIT_MESSAGE.equals(messageToSend)) {
                     break;
                 }
