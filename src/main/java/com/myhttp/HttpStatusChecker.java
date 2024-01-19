@@ -26,7 +26,7 @@ public class HttpStatusChecker {
     }
     static class MyException extends Exception {
         public MyException(int code) {
-            super(code + " not found!");
+            super("There is not image for HTTP status: " + code);
         }
     }
 }
