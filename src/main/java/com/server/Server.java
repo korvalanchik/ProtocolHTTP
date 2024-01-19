@@ -22,15 +22,12 @@ public class Server {
 
     private static void startServer(int maxConnections, int port) {
         pool = Executors.newFixedThreadPool(maxConnections);
-//        BufferedReader in = null;
-//        OutputStream out = null;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port: " + port);
 
             while (true) {
                 listenForClients(serverSocket);
-                System.out.println("Listening");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -42,31 +39,31 @@ public class Server {
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client connected");
 
-            pool.submit(() -> handleClient(serverSocket, clientSocket));
+            pool.submit(() -> handleClient(clientSocket));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void handleClient(ServerSocket serverSocket, Socket clientSocket) {
+    private static void handleClient(Socket clientSocket) {
         try (
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream out = clientSocket.getOutputStream()
         ) {
-            String receivedMessage = null;
-
-//            while(!receivedMessage.equals("Q")) {
+            String receivedMessage = in.readLine();
+            System.out.println("received");
+            if (receivedMessage != null) {
+                System.out.println("Client NikName: " + receivedMessage);
+            }
+            while(true) {
                 receivedMessage = in.readLine();
                 if (receivedMessage != null) {
-                    System.out.println("Client request message: " + receivedMessage);
-
                     String serverResponse = receivedMessage.toUpperCase() + END_OF_MESSAGE_MARK;
-
                     out.write(serverResponse.getBytes());
+                    System.out.println("responsed");
                     out.flush();
                 }
-//                clientSocket = serverSocket.accept();
-//            }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
