@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -23,12 +22,15 @@ public class Server {
 
     private static void startServer(int maxConnections, int port) {
         pool = Executors.newFixedThreadPool(maxConnections);
+//        BufferedReader in = null;
+//        OutputStream out = null;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port: " + port);
 
             while (true) {
                 listenForClients(serverSocket);
+                System.out.println("Listening");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,28 +42,31 @@ public class Server {
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client connected");
 
-            pool.submit(() -> handleClient(clientSocket));
+            pool.submit(() -> handleClient(serverSocket, clientSocket));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void handleClient(Socket clientSocket) {
+    private static void handleClient(ServerSocket serverSocket, Socket clientSocket) {
         try (
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream out = clientSocket.getOutputStream()
         ) {
-            String receivedMessage = in.readLine();
-            System.out.println("received");
-            if (receivedMessage != null) {
-                System.out.println("Client request message: " + receivedMessage);
+            String receivedMessage = null;
 
-                String serverResponse = receivedMessage.toUpperCase() + END_OF_MESSAGE_MARK;
+//            while(!receivedMessage.equals("Q")) {
+                receivedMessage = in.readLine();
+                if (receivedMessage != null) {
+                    System.out.println("Client request message: " + receivedMessage);
 
-                out.write(serverResponse.getBytes());
-                System.out.println("responsed");
-                out.flush();
-            }
+                    String serverResponse = receivedMessage.toUpperCase() + END_OF_MESSAGE_MARK;
+
+                    out.write(serverResponse.getBytes());
+                    out.flush();
+                }
+//                clientSocket = serverSocket.accept();
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
