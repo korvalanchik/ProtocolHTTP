@@ -1,30 +1,35 @@
 package com.myhttp;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.regex.Pattern;
 
 public class HttpImageStatusCli {
-    public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
+    private static final String EXIT_MESSAGE = "0";
+    public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
         new HttpImageStatusCli().askStatus();
     }
-    void askStatus() throws URISyntaxException, IOException, InterruptedException {
-        String urlString = "http://localhost:8080/test";
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(urlString))
-                .GET()
-                .version(HttpClient.Version.HTTP_2)
-                .header("Content-Type", "application/jpg")
-                .build();
-        HttpClient client = HttpClient.newBuilder().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        int responseCode = response.statusCode();
-        if(responseCode == 200) {
-            System.out.println("All good");
+    void askStatus() throws IOException, URISyntaxException, InterruptedException {
+        BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
+        String inputMessage = null;
+        HttpStatusImageDownloader image = new HttpStatusImageDownloader();
+        while (true) {
+            System.out.print("Enter HTTP status code(000-999) or 0 to quit: ");
+            inputMessage = consoleIn.readLine();
+            if (EXIT_MESSAGE.equals(inputMessage)) {
+                break;
+            }
+            if (!Pattern.matches("\\d\\d\\d",inputMessage)) {
+                System.out.println("Please enter valid number");
+            } else {
+                try {
+                    image.downloadStatusImage(Integer.parseInt(inputMessage));
+                } catch (HttpStatusChecker.MyException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
         }
     }
-
 }
